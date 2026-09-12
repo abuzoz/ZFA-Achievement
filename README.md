@@ -1,277 +1,143 @@
+<div align="center">
+
+<img src="assets/logo.png" width="112" alt="ZFA Achievement logo" />
+
 # ZFA Achievement
 
-برنامج سطح مكتب **بنافذة واحدة** — كل الأدوات صفحات داخلية تتبدّل من الشريط
-الجانبي (مافي نوافذ منفصلة تتراكم):
+**A modern, single-window desktop tool for managing Steam achievements, badge cards, and playtime — powered by the official Steamworks API.**
+
+أداة سطح مكتب عصرية بنافذة واحدة لإدارة إنجازات Steam والكروت ووقت اللعب — عن طريق Steamworks API الرسمي.
+
+[![Download](https://img.shields.io/badge/⬇_Download-ZFA_Achievement-7c5cff?style=for-the-badge)](https://github.com/abuzoz/ZFA-Achievement/releases/latest/download/ZFA-Achievement.zip)
+&nbsp;
+[![Release](https://img.shields.io/github/v/release/abuzoz/ZFA-Achievement?style=for-the-badge&color=b14cff)](https://github.com/abuzoz/ZFA-Achievement/releases/latest)
+
+![Platform](https://img.shields.io/badge/Windows-10%20%7C%2011-0078d6?logo=windows)
+![Python](https://img.shields.io/badge/Python-3.10%2B-3776ab?logo=python&logoColor=white)
+![Languages](https://img.shields.io/badge/UI-العربية%20%7C%20English-7c5cff)
+![License](https://img.shields.io/badge/License-MIT-green)
+
+**[English](#english)** · **[العربية](#العربية)**
+
+<br />
+
+<img src="docs/main.png" width="49%" alt="Games list" />
+<img src="docs/scan.png" width="49%" alt="Achievement scan" />
+<img src="docs/idler.png" width="49%" alt="Playtime & card idler" />
+<img src="docs/main-en.png" width="49%" alt="English UI" />
+
+</div>
+
+---
+
+## English
+
+Everything lives in **one window** — the sidebar switches between internal pages instead of piling up separate popups. It talks to your Steam client through the **official Steamworks API**, the same way a real game does: no cracks, no patched game files.
+
+### Features
+
+| Page | What it does |
+|------|--------------|
+| 🎮 **Games** | Your whole library + stat cards + open a game's achievements |
+| 📊 **Scan** | Completion % of every game's achievements, sorted, cached |
+| 🏅 **Badges** | Your badges, the cards you're missing, and their market cost |
+| ⏳ **Idler** | Make Steam count you as *playing* — for playtime **and** card drops, many games at once |
+| ⚙ **Settings** | Language, profile URL, login cookie, start-with-Windows |
+
+- **Whole library, installed or not.** Achievements, scanning, and the idler all work on any game on your account — it doesn't have to be installed.
+- **Fully automatic.** It detects your Steam account, finds `steam_api64.dll`, and builds your library on first launch. No manual setup.
+- **Bilingual.** Arabic and English, switched instantly with the 🌐 button. Arabic is shaped natively by Tk 8.6 — correct RTL, no scrambling.
+- **Runs 24/7.** Close (X) minimizes to the system tray and keeps idling. Optional **start with Windows** resumes your idle jobs on boot.
+- **No annoying errors.** Unexpected errors go to a log file, not a traceback popup. Games that refuse to launch are marked and skipped.
+- **Safe editing.** Achievements can be staggered over time (looks natural) and a **backup is taken before every change** with one-click restore.
+
+### Download & run
+
+1. **[Download the latest release](https://github.com/abuzoz/ZFA-Achievement/releases/latest/download/ZFA-Achievement.zip)** and unzip it (keep the whole folder together).
+2. Open **Steam** and sign in first.
+3. Double-click the launcher shortcut (or `SteamAchievementManager.vbs`) — it opens with no console window.
+4. Pick a game → **Open achievements**. That's it.
+
+> **Windows may warn "protected your PC"** because the build is not signed with a paid certificate. Choose **More info → Run anyway**. If Smart App Control blocks the `.exe`, the included `.vbs` launcher runs it through your trusted Python instead.
+
+**Run from source instead:**
+
+```bash
+pip install -r requirements.txt
+python main.py
+```
+
+### The login cookie (optional)
+
+Everything works without it. A `steamLoginSecure` cookie only unlocks three extras: **cards remaining**, in-progress badges, and **market prices** (Steam returns HTTP 429 for market requests without a login).
+
+Add it in **⚙ Settings** — either the built-in **Import** button, or paste it manually (browser → `F12` → Application → Cookies → `steamLoginSecure`). It's stored **only on your machine** in `%APPDATA%\SteamAchievementManager\config.json`. Treat it like a password — don't share it.
+
+### How it works
+
+`steamapi.py` binds the Steamworks flat API via `ctypes`; `steamlib.py` discovers your Steam install, library, and account locally; `steamweb.py` reads Community pages (badges, card sets, prices) with rate-limiting. The UI is Tkinter with a dark indigo/violet theme centralized in [`theme.py`](theme.py). Each game's achievements open as an independent process, because Steamworks allows only one AppID per process.
+
+### ⚠️ Disclaimer
+
+Editing achievements violates the Terms of Service of some games and can remove you from leaderboards. It does **not** trigger a VAC ban, but **use is entirely at your own risk**. Badges are never force-unlocked — cards are real inventory items on Valve's servers with real prices; the only genuine ways to get them are the idler or the market.
+
+---
+
+<div align="right" dir="rtl">
+
+## العربية
+
+كل شي بنافذة **واحدة** — الشريط الجانبي بيبدّل بين الصفحات الداخلية بدل ما تتراكم نوافذ منفصلة. البرنامج بيحكي مع عميل Steam عن طريق **Steamworks API الرسمي**، بالضبط زي ما اللعبة نفسها بتعمل: ما في اختراق ولا تعديل على ملفات اللعبة.
+
+### المميزات
 
 | الصفحة | شو بتعمل |
-|---|---|
-| 🎮 **الألعاب** | قائمة ألعابك + بطاقات إحصائيات + فتح إنجازات لعبة |
-| 📊 **المسح** | نسبة إكمال الإنجازات لكل ألعابك |
+|--------|----------|
+| 🎮 **الألعاب** | مكتبتك كاملة + بطاقات إحصائيات + فتح إنجازات أي لعبة |
+| 📊 **المسح** | نسبة إكمال الإنجازات لكل ألعابك، مرتّبة ومكاش |
 | 🏅 **الشارات** | شاراتك، الكروت الناقصة، وتكلفتها من السوق |
-| ⏳ **وقت اللعب** | تخلّي Steam يحسبك «بتلعب» عشان الوقت والكروت |
-| ⚙ **الإعدادات** | اللغة، رابط الحساب، الكوكي |
+| ⏳ **وقت اللعب** | تخلّي Steam يحسبك «بتلعب» — للوقت **وللكروت**، كذا لعبة بنفس الوقت |
+| ⚙ **الإعدادات** | اللغة، رابط الحساب، الكوكي، التشغيل مع ويندوز |
 
-بيشتغل عن طريق **Steamworks API الرسمي** من خلال حساب Steam تبعك — يعني ما في
-اختراق ولا تعديل على ملفات اللعبة، البرنامج بس بيحكي مع عميل Steam زي ما اللعبة
-نفسها بتعمل.
+- **كل مكتبتك، مثبّتة أو لأ.** الإنجازات والمسح والـ idler بيشتغلوا على أي لعبة بحسابك — مش لازم تكون منصّبة.
+- **تلقائي بالكامل.** بيكتشف حساب Steam، بيلاقي `steam_api64.dll`، وبيبني مكتبتك بأول تشغيل. بدون أي إعداد يدوي.
+- **بلغتين.** عربي وإنجليزي، بيتبدّلوا فورًا بزر 🌐. العربي بيتشكّل أصلًا من Tk 8.6 — RTL صحيح بدون تخريب.
+- **بيشتغل 24/7.** زر الإغلاق (X) بينزّل البرنامج لجنب الساعة وبيكمّل تشغيل. وخيار **التشغيل مع ويندوز** بيرجّع مهامك أول ما يفتح الجهاز.
+- **ما في رسائل خطأ مزعجة.** أي خطأ بينكتب بملف log مش بنافذة traceback. الألعاب اللي بترفض التشغيل بتتعلّم وبتنتخطّى.
+- **تعديل آمن.** الإنجازات بتتوزّع على فترة (بيبيّن طبيعي)، و**بتتاخد نسخة احتياطية قبل أي تعديل** مع استرجاع بضغطة.
 
-> **الاستثناء الوحيد لنافذة منفصلة:** لما تفتح إنجازات لعبة محددة، بتفتح نافذتها
-> كعملية مستقلة — إجباري لأن Steamworks بيسمح بلعبة واحدة (AppID) لكل عملية.
+### التحميل والتشغيل
 
-> **الشارات ما بتنفتح بالقوّة.** الإنجاز flag محلي بيقدر عميلك يكتبه؛ أما الكروت
-> فهي **أغراض جرد على سيرفرات Valve** إلها سعر حقيقي، وصياغة الشارة بتتحقق
-> سيرفر-سايد. ما في API — لا Steamworks ولا Web API — بيولّد كرت. الطريقتين
-> الوحيدتين الحقيقيتين: تنزّل الكروت بالـ idler، أو تشتري الناقص من السوق.
+1. **[نزّل آخر إصدار](https://github.com/abuzoz/ZFA-Achievement/releases/latest/download/ZFA-Achievement.zip)** وفك الضغط (خلي المجلد كامل مع بعض).
+2. افتح **Steam** وسجّل دخول أول.
+3. دبل-كليك على اختصار المشغّل (أو `SteamAchievementManager.vbs`) — بيفتح بدون نافذة كونسول.
+4. اختر لعبة → **افتح الإنجازات**. خلص.
 
-بيشتغل عن طريق **Steamworks API الرسمي** من خلال حساب Steam تبعك — يعني ما في
-اختراق ولا تعديل على ملفات اللعبة، البرنامج بس بيحكي مع عميل Steam زي ما اللعبة
-نفسها بتعمل.
+> **ممكن ويندوز يقول «Windows protected your PC»** لأن البرنامج غير موقّع بشهادة مدفوعة. اضغط **More info → Run anyway**. ولو Smart App Control حظر الـ `.exe`، المشغّل `.vbs` بيشغّله عبر بايثون الموثوق عندك.
 
-> **الشارات ما بتنفتح بالقوّة.** الإنجاز flag محلي بيقدر عميلك يكتبه؛ أما الكروت
-> فهي **أغراض جرد على سيرفرات Valve** إلها سعر حقيقي، وصياغة الشارة بتتحقق
-> سيرفر-سايد. ما في API — لا Steamworks ولا Web API — بيولّد كرت. الطريقتين
-> الوحيدتين الحقيقيتين: تنزّل الكروت بالـ idler، أو تشتري الناقص من السوق.
+**تشغيل من المصدر:**
 
-## التشغيل
-
-1. شغّل **Steam** وسجّل دخول (لازم يكون شغّال قبل البرنامج).
-2. **دبل-كليك على اختصار «Steam Achievement Manager»** على سطح المكتب — أو على
-   `SteamAchievementManager.vbs` داخل المجلد. بيفتح بدون نافذة كونسول.
-3. بأول تشغيل البرنامج بيدوّر لحاله على `steam_api64.dll`، وبيحفظ مساره. إذا ما
-   لقاه، اضغط **تحديد steam_api64.dll** واختاره من مجلد أي لعبة.
-4. اختر اللعبة من القائمة → **افتح الإنجازات**.
-
-### الإغلاق ينزل لعند الساعة (System Tray)
-
-لما تسكّر النافذة (X) البرنامج **ما بيقفل** — بينزل لأيقونة جنب الساعة ويظل شغّال
-(فمزرعة الكروت/الوقت بتكمّل بالخلفية). من أيقونة الساعة:
-- **كليك** أو **إظهار ZFA Achievement** → ترجع النافذة.
-- **إنهاء** → يقفل البرنامج فعليًا (ويوقف أي idler شغّال).
-
-### ليش مشغّل بدل الـ .exe؟
-
-ويندوز 11 عندك عليه **Smart App Control (مُفعّل بصرامة)** — بيحظر أي ملف `.exe`
-جديد غير موقّع بشهادة موثوقة من مايكروسوفت (والتوقيع الذاتي ما بينفع معه). فبدل
-ما نصارع الأمان، المشغّل (`.vbs` / `.bat`) بيشغّل البرنامج عبر **Python المثبّت
-عندك وهو موثوق أصلًا** — فويندوز ما بيحظره. مجرَّب وشغّال تحت SAC المشدّد.
-
-الـ `.exe` (في `dist\`) لسه موجود ويشتغل على أجهزة **بدون** SAC مشدّد. عالجهاز
-الحالي استعمل الاختصار. (بدائل لو بدك الـ exe: من رسالة الحظر «More info → Run
-anyway»، أو تطفّي SAC من Windows Security — قرارك.)
-
-**طرق تشغيل أخرى:**
-- `تشغيل البرنامج.bat` (بيومض كونسول لحظة ثم يفتح)
-- من التيرمنال: `python main.py`
-
-للأيقونات والواجهة العربية:
-```
+```bash
 pip install -r requirements.txt
+python main.py
 ```
 
-للأيقونات والواجهة العربية:
-```
-pip install -r requirements.txt
-```
+### كوكي تسجيل الدخول (اختياري)
 
-## تلقائي بالكامل
+كل شي بيشتغل بدونه. كوكي `steamLoginSecure` بس بيفتح ثلاث إضافات: **عدد الكروت المتبقية**، الشارات قيد التقدم، و**أسعار السوق** (Steam بيرجّع 429 لأي طلب سوق بدون تسجيل دخول).
 
-ما في إعداد يدوي مطلوب — أول ما تفتح البرنامج بيجهّز حاله:
+حطّه من **⚙ الإعدادات** — إما زر **استيراد** الجاهز، أو الصقه يدويًا (المتصفح → `F12` → Application → Cookies → `steamLoginSecure`). بينحفظ **على جهازك بس** في `%APPDATA%\SteamAchievementManager\config.json`. عامله زي كلمة السر — لا تشاركه.
 
-| الشي | من وين بيجيبه |
-|---|---|
-| حسابك | `config/loginusers.vdf` → رقم حسابك واسمك، وبيبني رابط البروفايل لحاله |
-| `steam_api64.dll` | بحث تلقائي جوّا مكتبات Steam، وبينحفظ للمرات الجاية |
-| مكتبتك | `localconfig.vdf` + الأسماء من المتجر (كاش دائم) |
-| اللغة | آخر لغة اخترتها |
+### ⚠️ إخلاء مسؤولية
 
-الشي الوحيد اللي بيضل يدوي هو **كوكي `steamLoginSecure`** — ما في طريقة تلقائية
-آمنة لجلبه، وبدونه بتشتغل كل الأدوات بس بدون الكروت المتبقية والأسعار.
+تعديل الإنجازات مخالف لشروط بعض الألعاب وممكن يشيلك من لوحات المتصدرين. **ما بيسبب حظر VAC**، بس **الاستخدام على مسؤوليتك الكاملة**. الشارات ما بتنفتح بالقوّة — الكروت أغراض جرد حقيقية على سيرفرات Valve إلها أسعار، والطريقتين الوحيدتين الحقيقيتين: الـ idler أو السوق.
 
-### ما في رسائل خطأ مزعجة
+</div>
 
-- أي خطأ غير متوقع بينكتب في `%APPDATA%\SteamAchievementManager\errors.log`
-  بدل ما يوقّف البرنامج أو يطلع نافذة traceback.
-- الألعاب اللي بترفض التشغيل (بدون ترخيص أو مسحوبة من المتجر) بتظهر
-  `غير متاحة` بعمود الحالة، وما بتنعاد المحاولة عليها ولا بتطلع نافذة تنبيه.
-- لو لعبة شغّالة وقعت لحالها، البرنامج بيعيد تشغيلها تلقائيًا (لحد 3 مرات)
-  وبيعرض العدد بشريط الحالة — فتشغيل الليل ما بينقطع بصمت.
-- خيار **شغّل اللي إلها كروت تلقائيًا** بالـ idler بيبلّش لحاله أول ما تفتح
-  النافذة، والاختيار بينحفظ.
+---
 
-## المظهر
+<div align="center">
 
-تصميم داكن عصري: خلفية عميقة بطبقات، لون تمييز **بنفسجي/إنديغو** (`#7c5cff`)،
-صفوف فسيحة متناوبة (zebra)، أزرار بتأثير hover، وأشرطة تقدّم يونيكود لنسبة إكمال
-الإنجازات وأطقم الكروت. كل الألوان مركزية في [theme.py](theme.py) — عدّل
-`ACCENT` هناك لتغيير لون البرنامج كله.
+© 2026 ZFA Achievement · by **Ziad Fayez** · [MIT License](LICENSE)
 
-## اللغة
-
-البرنامج بلغتين: **العربية** و**English**. أسرع طريقة: زر **🌐** بأعلى الشاشة
-الرئيسية (جنب اسم الحساب) — بيقلب اللغة فورًا. أو من **⚙ إعدادات الحساب** →
-القائمة المنسدلة `اللغة`. الشاشة الرئيسية بتتحدّث فورًا، والنوافذ المفتوحة
-بتضل باللغة القديمة لحد ما تسكّرها وتفتحها.
-
-**ملاحظة تقنية:** Tk 8.6.x على ويندوز بيشكّل العربي ويرتّبه (bidi) **أصلًا**،
-فالبرنامج بيمرّر النص العربي الخام مباشرة لـ Tk بدون أي معالجة. (المحاولة
-السابقة لتشكيله يدويًا بـ `arabic-reshaper` كانت **معالجة مزدوجة** بتخرّب النص —
-انشالت.) `i18n.shape()` صار مجرد passthrough.
-
-التخطيط العام بيضل من اليسار لليمين (ترتيب الأعمدة والأزرار)، بس النصوص العربية
-نفسها بتنعرض صح من اليمين لليسار.
-
-## إعدادات البروفايل (للشارات والـ idler)
-
-اضغط **⚙ Profile settings** وحط:
-
-1. **رابط البروفايل** — مثلًا `https://steamcommunity.com/id/yourname`
-2. **كوكي `steamLoginSecure`** — اختياري بس **ضروري** لثلاث أشياء:
-   عدد الكروت المتبقية (drops remaining)، الشارات اللي لسه قيد التقدم، وأسعار
-   السوق. Steam بيرجّع **429** لأي طلب سوق بدون تسجيل دخول، وصفحة الشارات
-   العامة بتعرض بس الشارات المكتملة.
-
-   كيف تجيبه: افتح `steamcommunity.com` بالمتصفح وأنت مسجّل دخول → `F12` →
-   Application/Storage → Cookies → انسخ قيمة `steamLoginSecure`.
-
-الكوكي بينحفظ **على جهازك بس** في
-`%APPDATA%\SteamAchievementManager\config.json`. هو بمثابة كلمة سر لحسابك — لا
-تشاركه مع حدا، ولما ينتهي بدّله من نفس النافذة.
-
-## الشارات وحاسبة التكلفة
-
-من الشاشة الرئيسية: **🏅 Badges & card costs**
-
-- جدول بكل شارة: المستوى، كم كرت عندك من الطقم، كم ناقصك، التكلفة، والكروت المتبقية.
-- اضغط على عنوان أي عمود للترتيب (رتّب بـ `Missing` أو `Cost`).
-- **Fetch market prices** بيجيب أسعار الكروت الناقصة (طلب واحد لكل لعبة، مع تهدئة
-  تلقائية لتفادي الـ 429).
-- دبل-كليك على أي صف بيفتح تفاصيل الكروت: شو عندك، شو ناقص، وسعر كل كرت.
-- السطر الأزرق تحت بيحسب لك: كم شارة لازم تصنع للمستوى الجاي (كل صياغة = 100 XP)،
-  وأرخص طريق تشتريه، وأي ألعاب فيها كروت مجانية لسه.
-
-## وقت اللعب والكروت (Idler)
-
-من الشاشة الرئيسية: **⏳ Playtime & card idler**
-
-بيخلّي Steam يحسب اللعبة «شغّالة» بدون ما تفتحها فعليًا — فبتزيد **ساعات اللعب**
-وبتنزل **كروت** الطقم، الاثنين بنفس الآلية.
-
-- بيعرض **كل ألعابك** مع ساعات اللعب الحالية. اللعبة **ما لازم تكون مثبّتة**.
-- خانة **Run for [N] hours** — بيوقف لحاله بعد المدة اللي تحددها. اتركها فاضية
-  ليضل شغّال لحد ما توقفه.
-- عمود **Playtime** بيعرض ساعاتك، ولما تشغّل بيصير يعرض الزيادة الحيّة:
-  `503.0h  +0.25`. الرقم الأساسي بينحدّث من Steam كل 5 دقائق.
-- خيار **Only games with card drops** بيفلتر على اللي لسه إلها كروت (يحتاج
-  الكوكي). و**Start all with drops** بيشغّلهم كلهم دفعة وحدة.
-- بيتحقق كل 10 دقائق من الكروت المتبقية، ولما توصل صفر بيوقف اللعبة لحاله —
-  إلا إذا كنت محدد مدة زمنية، ساعتها بيكمّل للوقت اللي طلبته.
-- الحد الأقصى 20 لعبة بنفس الوقت (Steam بيوقف يحسب فوق ~32).
-- شريط الحالة تحت بيجمع لك **game-hours** الجلسة كلها.
-- الكروت بتنزل حسب وقت اللعب، فتوقّع كرت كل نص ساعة تقريبًا لكل لعبة.
-
-**ملاحظات:**
-
-- وقت ما اللعبة شغّالة بالـ idler، أصحابك بيشوفوك «بتلعبها»، والساعات بتنزاد على
-  سجلك العام. إذا هاد مش مطلوب، حط حسابك أو نشاط اللعب على Private.
-- بعض الألعاب بترفض التشغيل وبتطلع `ERROR` بعمود State — غالبًا ألعاب مجانية ما
-  عندك ترخيص فعلي فيها، أو ألعاب مسحوبة من المتجر. تجاهلها وكمّل على غيرها.
-
-## كل ألعابك (Whole library)
-
-القائمة بتعرض **مكتبتك كاملة** بشكل افتراضي — حتى الألعاب المحذوفة من الجهاز.
-إذا بدك المثبّتة بس، أطفي خيار **كل المكتبة** من فوق (الاختيار بينحفظ):
-
-- المصدر الأساسي محلي: `userdata\<id>\config\localconfig.vdf` — بيعطي كل AppID
-  عند Steam له سجل، مع وقت اللعب، **بدون إنترنت وبدون كوكي**.
-- الأسماء بتنجاب من متجر Steam أول مرة بس (طلب لكل لعبة، مع تهدئة)، وبتنحفظ في
-  `%APPDATA%\SteamAchievementManager\appnames.json` — بعدها التحميل فوري.
-- لو الكوكي محطوط، بينضاف عليها قائمة الألعاب من البروفايل كمان، فتلحق حتى
-  الألعاب اللي عمرها ما اشتغلت على هالجهاز.
-- الألعاب غير المثبّتة بتظهر بلون باهت مع كلمة `غير مثبّتة`. **الأدوات الثلاثة
-  بتشتغل عليها عادي** — الإنجازات والـ idler والشارات؛ اللعبة ما لازم تكون
-  منصّبة، بس لازم تكون بحسابك و Steam شغّال.
-
-بعض الألعاب بتظهر باسم `AppID 12345` — يعني المتجر ما رجّع اسمها (لعبة مسحوبة من
-المتجر أو أداة مش لعبة). هاد طبيعي وما بيأثر على الاشتغال.
-
-## الإنجازات
-
-بتشتغل على **أي لعبة بحسابك**، مثبّتة أو لأ. اختر اللعبة من القائمة واضغط
-**افتح الإنجازات** (أو دبل-كليك)، أو اكتب رقم الـ **AppID** بالخانة تحت.
-
-قائمة الإنجازات وأسماؤها وأوصافها وصورها كلها بتيجي من كاش Steam مش من ملفات
-اللعبة، لهيك ما في داعي تنصّبها. مثال مجرَّب: Age of Empires III وهي غير مثبّتة
-رجّعت 121 إنجاز مع الصور.
-
-- `بحث` للبحث بالاسم أو الوصف.
-- `المقفلة فقط` لعرض اللي لسه ما فتحته بس.
-- `افتح الكل` / `اقفل الكل` / `عكس` بتشتغل على **المعروض حاليًا** فقط، فتقدر
-  تفلتر أول ثم تختار الكل.
-- التغييرات ما بتنحفظ إلا لما تضغط **حفظ التغييرات** (فيه تأكيد قبل الحفظ).
-- بعض الألعاب بترفض التشغيل (ألعاب مجانية بدون ترخيص فعلي، أو مسحوبة من المتجر)
-  وبتطلع رسالة خطأ من Steamworks — تجاهلها وكمّل على غيرها.
-
-### فتح تدريجي + نسخة احتياطية
-
-- خانة **وزّع على فترة**: بدل ما تفتح كل الإنجازات بنفس الثانية (بيبيّن مكشوف
-  على بروفايلك)، بيوزّعهم عشوائيًا على فترة (~20 ثانية للإنجاز بمتوسط) وبترتيب
-  مخلوط. وقت التوزيع الزر بيصير **إيقاف** فتقدر توقف بأي لحظة.
-- قبل أي تعديل بيتاخد **نسخة احتياطية** تلقائيًا لحالتك الأصلية، محفوظة في
-  `%APPDATA%\SteamAchievementManager\backups\`. زر **تراجع (استرجاع)** بيرجّعك
-  لآخر حالة محفوظة — شبكة أمان لأخطر عملية بالبرنامج.
-
-## مسح كل الإنجازات
-
-من الشاشة الرئيسية: **📊 مسح كل الإنجازات**
-
-- جدول واحد بكل ألعابك مع **نسبة الإكمال** (مفتوحة/الكل)، مرتّب تنازليًا فبتشوف
-  فورًا شو قريب من 100٪ (أصفر ≥75٪، أخضر 100٪).
-- كل لعبة بتنمسح بعملية مستقلة سريعة (~0.3 ثانية للعبة عندك)، والنتيجة **بتنكاش**
-  في `achievement_scan.json` فإعادة الفتح فورية.
-- خانة **إخفاء المكتملة/الفارغة** للتركيز على اللي ناقص.
-- دبل-كليك على أي لعبة بيفتح إنجازاتها مباشرة.
-- زر المسح بيصير **إيقاف** وقت الشغل. الألعاب بدون إنجازات بتظهر `—`.
-
-## نسخة .exe (بدون بايثون)
-
-عشان يشتغل بدبل-كليك على أي جهاز بدون تنصيب بايثون:
-
-```
-python build_exe.py
-```
-
-بينتج مجلد `dist\SteamAchievementManager\` جوّاه `SteamAchievementManager.exe`.
-انسخ المجلد كامل (مش الـ exe لحاله) لأي جهاز وشغّل الملف. نفس الـ exe بيشغّل
-الواجهة والعمليات الفرعية (عبر `launcher.py`).
-
-> بُني بـ `--onedir` مش `--onefile` عن قصد: البرنامج بيشغّل عمليات فرعية كثيرة
-> (وحدة لكل لعبة بالمسح، لحد 20 بالتوازي بالـ idler)، و`onefile` بيفك ضغط كل
-> الحمولة كل مرة يتشغّل — ثواني ضايعة لكل عملية. `onedir` بيفك مرة وحدة.
-
-## كيف بيشتغل
-
-- `steamapi.py` — ربط `ctypes` على الـ flat API تبع Steamworks:
-  `RequestCurrentStats` / `GetAchievement*` / `SetAchievement` /
-  `ClearAchievement` / `StoreStats`، بالإضافة لـ `ISteamUtils` لسحب صور
-  الإنجازات (RGBA 64×64).
-- `steamlib.py` — إيجاد مجلد Steam من الريجستري، قراءة `libraryfolders.vdf`
-  وكل `appmanifest_*.acf`، والبحث عن `steam_api64.dll`.
-- `manager.py` — نافذة الإنجازات للعبة وحدة.
-- `steamweb.py` — قراءة صفحات Steam Community (شارات، أطقم كروت، أسعار السوق)
-  مع تهدئة الطلبات وكاش وإعادة محاولة عند 429.
-- `badgeswin.py` — نافذة الشارات وحاسبة التكلفة.
-- `idlerwin.py` + `idle_worker.py` — مدير الـ idler وعملية اللعبة الواحدة.
-- `settings.py` — اللغة ورابط البروفايل والكوكي.
-- `safety.py` — سجل الأخطاء ومانع الانهيار.
-- `i18n.py` — كل نصوص الواجهة بالعربي والإنجليزي، مع تشكيل العربية لـ Tkinter.
-- `main.py` — قائمة الألعاب، وبتفتح `manager.py` كـ **عملية مستقلة** لكل لعبة،
-  لأن Steamworks بيسمح بـ AppID واحد فقط لكل عملية (نفس أسلوب SAM).
-
-## ملاحظات مهمة
-
-- لازم اللعبة تكون **بحسابك** فعلًا؛ Steamworks ما بيهيّئ AppID ما بتملكه.
-- وقت ما البرنامج مفتوح على لعبة، Steam رح يعرضك «بتلعب» هاي اللعبة — طبيعي.
-- بعض الألعاب بتستخدم إنجازات مبنية على **إحصائيات (stats)**؛ هدول ممكن السيرفر
-  أو اللعبة تعيد قفلهم لما تشتغل. النسخة الحالية بتتعامل مع الإنجازات فقط.
-- تعديل الإنجازات مخالف لشروط بعض الألعاب، وممكن يشيلك من لوحات المتصدرين.
-  ما بيسبب حظر VAC، بس القرار والمسؤولية عليك.
+</div>
