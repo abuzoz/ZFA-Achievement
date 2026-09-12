@@ -1,0 +1,17 @@
+# Local editor / assistant config
+.claude/
+
+# Build artifacts
+build/
+dist/
+*.spec
+__pycache__/
+*.pyc
+
+# Windows shortcuts / local launchers generated per-machine
+*.lnk
+
+# Local user data never belongs in the repo (it lives in %APPDATA%)
+config.json
+errors.log
+achievement_scan.json
