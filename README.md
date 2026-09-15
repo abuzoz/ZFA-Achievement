@@ -48,6 +48,8 @@ Everything lives in **one window** — the sidebar switches between internal pag
 - **Fully automatic.** It detects your Steam account, finds `steam_api64.dll`, and builds your library on first launch. No manual setup.
 - **Bilingual.** Arabic and English, switched instantly with the 🌐 button. Arabic is shaped natively by Tk 8.6 — correct RTL, no scrambling.
 - **Runs 24/7.** Close (X) minimizes to the system tray and keeps idling. Optional **start with Windows** resumes your idle jobs on boot.
+- **Auto-updating.** On launch it checks GitHub for a newer release and installs it in one click — download, swap, and restart happen by themselves.
+- **One instance only.** Launching it again while it's already running (even from the tray) just brings the existing window back instead of opening a second copy.
 - **No annoying errors.** Unexpected errors go to a log file, not a traceback popup. Games that refuse to launch are marked and skipped.
 - **Safe editing.** Achievements can be staggered over time (looks natural) and a **backup is taken before every change** with one-click restore.
 
@@ -103,6 +105,8 @@ Editing achievements violates the Terms of Service of some games and can remove 
 - **تلقائي بالكامل.** بيكتشف حساب Steam، بيلاقي `steam_api64.dll`، وبيبني مكتبتك بأول تشغيل. بدون أي إعداد يدوي.
 - **بلغتين.** عربي وإنجليزي، بيتبدّلوا فورًا بزر 🌐. العربي بيتشكّل أصلًا من Tk 8.6 — RTL صحيح بدون تخريب.
 - **بيشتغل 24/7.** زر الإغلاق (X) بينزّل البرنامج لجنب الساعة وبيكمّل تشغيل. وخيار **التشغيل مع ويندوز** بيرجّع مهامك أول ما يفتح الجهاز.
+- **تحديث تلقائي.** أول ما يفتح بيشوف إذا في نسخة أحدث على GitHub، وبضغطة وحدة بينزّلها ويثبّتها ويعيد التشغيل لحاله.
+- **نسخة واحدة بس.** لو فتحته وهو شغّال (حتى لو منزّل عند الساعة) بيرجّعلك النافذة الموجودة بدل ما يفتح نسخة تانية.
 - **ما في رسائل خطأ مزعجة.** أي خطأ بينكتب بملف log مش بنافذة traceback. الألعاب اللي بترفض التشغيل بتتعلّم وبتنتخطّى.
 - **تعديل آمن.** الإنجازات بتتوزّع على فترة (بيبيّن طبيعي)، و**بتتاخد نسخة احتياطية قبل أي تعديل** مع استرجاع بضغطة.
 

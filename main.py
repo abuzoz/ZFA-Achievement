@@ -77,6 +77,8 @@ class PickerWindow(tk.Tk):
         self._tray = None
         self._tray_notified = False
         self._singleton_lock = None
+        self._pending_update = None
+        self._update_checked = False
 
         self.games: list[steamlib.Game] = []
         self.config_data = steamlib.load_config()
@@ -90,6 +92,7 @@ class PickerWindow(tk.Tk):
         # Launched at boot (--tray): resume idling and hide to the tray.
         if "--tray" in _sys.argv:
             self.after(600, self._start_in_tray)
+        self.after(1800, self._check_updates)  # look for a newer release
 
     def _start_in_tray(self) -> None:
         # Create the idler page so it loads and auto-resumes farming, even
@@ -123,6 +126,10 @@ class PickerWindow(tk.Tk):
         self.lift()
         self.focus_force()
         self.state("normal")
+        # An update found while hidden in the tray is offered now that we're up.
+        if self._pending_update is not None:
+            info, self._pending_update = self._pending_update, None
+            self.after(500, lambda: self._show_update_dialog(info))
 
     # -- single-instance ------------------------------------------------
 
@@ -150,6 +157,200 @@ class PickerWindow(tk.Tk):
     def _surface(self) -> None:
         # A later launch asked us to show ourselves (we may be in the tray).
         self.restore_from_tray()
+
+    # -- auto-update ----------------------------------------------------
+
+    def _check_updates(self, manual: bool = False) -> None:
+        """Ask GitHub (off the UI thread) whether a newer release exists."""
+        if self._update_checked and not manual:
+            return
+        self._update_checked = True
+        import updater
+
+        def worker():
+            try:
+                info = updater.check()
+                error = None
+            except Exception as exc:  # offline / API error
+                info, error = None, exc
+            self.after(0, lambda: self._update_result(info, error, manual))
+
+        threading.Thread(target=worker, daemon=True).start()
+
+    def _update_result(self, info, error, manual: bool) -> None:
+        if not self.winfo_exists():
+            return
+        if info is None:
+            if manual:
+                from version import APP_VERSION
+
+                if error is not None:
+                    messagebox.showwarning(
+                        n("update.title"), n("update.check_failed"), parent=self
+                    )
+                else:
+                    messagebox.showinfo(
+                        n("update.title"),
+                        n("update.uptodate", version=APP_VERSION),
+                        parent=self,
+                    )
+            return
+
+        # Respect a version the user chose to skip (auto-checks only).
+        cfg = steamlib.load_config()
+        if not manual and cfg.get("skip_update_version") == info.version:
+            return
+
+        # If we're hidden in the tray, defer the dialog until the user opens up.
+        if not manual and not self.winfo_viewable():
+            self._pending_update = info
+            if self._tray is not None:
+                try:
+                    self._tray.notify(n("update.available_tray"))
+                except Exception:
+                    pass
+            return
+
+        self._show_update_dialog(info)
+
+    def _show_update_dialog(self, info) -> None:
+        if not self.winfo_exists():
+            return
+        from version import APP_VERSION
+        import updater
+
+        dlg = tk.Toplevel(self)
+        dlg.title(n("update.title"))
+        dlg.configure(bg=BG)
+        dlg.transient(self)
+        dlg.resizable(False, False)
+        try:
+            if self.logo_img is not None:
+                dlg.iconphoto(False, self.logo_img)
+        except Exception:
+            pass
+
+        pad = tk.Frame(dlg, bg=BG, padx=22, pady=18)
+        pad.pack(fill="both", expand=True)
+
+        tk.Label(
+            pad, text="✨  " + n("update.title"), bg=BG, fg=FG,
+            font=("Segoe UI", 13, "bold"), anchor="w",
+        ).pack(fill="x")
+        tk.Label(
+            pad, text=n("update.body", version=info.version, current=APP_VERSION),
+            bg=BG, fg=FG_DIM, justify="left", anchor="w", font=("Segoe UI", 10),
+        ).pack(fill="x", pady=(6, 10))
+
+        if info.notes:
+            box = tk.Text(
+                pad, height=8, width=52, wrap="word", bd=0,
+                bg=SURFACE, fg=FG, padx=10, pady=8, font=("Segoe UI", 9),
+                relief="flat", highlightthickness=0,
+            )
+            box.insert("1.0", info.notes)
+            box.configure(state="disabled")
+            box.pack(fill="both", expand=True, pady=(0, 12))
+
+        row = tk.Frame(pad, bg=BG)
+        row.pack(fill="x")
+
+        def close():
+            if dlg.winfo_exists():
+                dlg.destroy()
+
+        def later():
+            close()
+
+        def skip():
+            cfg = steamlib.load_config()
+            cfg["skip_update_version"] = info.version
+            steamlib.save_config(cfg)
+            close()
+
+        def do_update():
+            close()
+            if updater.FROZEN:
+                self._run_update(info)
+            else:
+                import webbrowser
+
+                webbrowser.open(info.page)
+
+        primary = n("update.now") if updater.FROZEN else n("update.open_page")
+        theme.HoverButton(
+            row, text=primary, command=do_update, kind="primary", padx=18, pady=8
+        ).pack(side="right")
+        theme.HoverButton(
+            row, text=n("update.later"), command=later, kind="ghost", padx=12, pady=8
+        ).pack(side="right", padx=(0, 8))
+        theme.HoverButton(
+            row, text=n("update.skip"), command=skip, kind="ghost", padx=12, pady=8
+        ).pack(side="left")
+
+        dlg.update_idletasks()
+        x = self.winfo_rootx() + (self.winfo_width() - dlg.winfo_width()) // 2
+        y = self.winfo_rooty() + (self.winfo_height() - dlg.winfo_height()) // 3
+        dlg.geometry(f"+{max(x, 0)}+{max(y, 0)}")
+        dlg.grab_set()
+
+    def _run_update(self, info) -> None:
+        """Download the release ZIP with a progress dialog, then hand off to the
+        swap batch and quit so it can replace the running files."""
+        import updater
+
+        prog = tk.Toplevel(self)
+        prog.title(n("update.title"))
+        prog.configure(bg=BG)
+        prog.transient(self)
+        prog.resizable(False, False)
+        frame = tk.Frame(prog, bg=BG, padx=26, pady=22)
+        frame.pack(fill="both", expand=True)
+        status = tk.Label(
+            frame, text=n("update.downloading"), bg=BG, fg=FG,
+            font=("Segoe UI", 10), anchor="w",
+        )
+        status.pack(fill="x", pady=(0, 10))
+        bar = ttk.Progressbar(frame, mode="determinate", length=320, maximum=100)
+        bar.pack(fill="x")
+        prog.update_idletasks()
+        x = self.winfo_rootx() + (self.winfo_width() - prog.winfo_width()) // 2
+        y = self.winfo_rooty() + (self.winfo_height() - prog.winfo_height()) // 3
+        prog.geometry(f"+{max(x, 0)}+{max(y, 0)}")
+        prog.grab_set()
+
+        def on_progress(done, total):
+            if total:
+                self.after(0, lambda: bar.configure(value=done * 100 / total))
+
+        def worker():
+            try:
+                zip_path = updater.download(info.url, on_progress)
+            except Exception as exc:
+                self.after(0, lambda error=exc: fail(error))
+                return
+            self.after(0, lambda: finish(zip_path))
+
+        def fail(error):
+            if prog.winfo_exists():
+                prog.destroy()
+            messagebox.showerror(
+                n("update.title"), n("update.failed", error=error), parent=self
+            )
+
+        def finish(zip_path):
+            if prog.winfo_exists():
+                status.configure(text=n("update.installing"))
+                bar.configure(value=100)
+                prog.update_idletasks()
+            try:
+                updater.apply_and_restart(zip_path)
+            except Exception as exc:
+                fail(exc)
+                return
+            self.after(400, self.quit_app)  # let the swap batch take over
+
+        threading.Thread(target=worker, daemon=True).start()
 
     def quit_app(self) -> None:
         idler = self.pages.get("idler")

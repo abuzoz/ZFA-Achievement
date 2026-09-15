@@ -42,6 +42,8 @@ HIDDEN = [
     "launcher",
     "tray",
     "singleton",
+    "updater",
+    "version",
     "PIL",
     "PIL.Image",
     "PIL.ImageTk",

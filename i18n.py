@@ -70,6 +70,40 @@ STRINGS: dict[str, dict[str, str]] = {
         "en": "Still running here — right-click to quit.",
         "ar": "لسه شغّال هون — كليك يمين للإنهاء.",
     },
+    "update.title": {"en": "Update available", "ar": "تحديث جديد متوفر"},
+    "update.body": {
+        "en": "A new version ({version}) is available.\nYou have {current}.",
+        "ar": "في نسخة جديدة ({version}).\nنسختك الحالية {current}.",
+    },
+    "update.now": {"en": "Update now", "ar": "حدّث الآن"},
+    "update.later": {"en": "Later", "ar": "لاحقًا"},
+    "update.skip": {"en": "Skip this version", "ar": "تجاهل هالنسخة"},
+    "update.open_page": {"en": "Open download page", "ar": "فتح صفحة التحميل"},
+    "update.downloading": {"en": "Downloading update…", "ar": "جارٍ تنزيل التحديث…"},
+    "update.installing": {
+        "en": "Installing… the app will close and reopen by itself.",
+        "ar": "جارٍ التثبيت… رح يسكّر البرنامج ويفتح لحاله.",
+    },
+    "update.failed": {"en": "Update failed: {error}", "ar": "فشل التحديث: {error}"},
+    "update.available_tray": {
+        "en": "A new version is available — open the app to update.",
+        "ar": "في نسخة جديدة — افتح البرنامج عشان يتحدّث.",
+    },
+    "update.check": {"en": "Check for updates", "ar": "فحص التحديثات"},
+    "update.checking": {"en": "Checking…", "ar": "جارٍ الفحص…"},
+    "update.uptodate": {
+        "en": "You're on the latest version ({version}).",
+        "ar": "أنت على آخر نسخة ({version}).",
+    },
+    "update.check_failed": {
+        "en": "Couldn't check for updates (no connection?).",
+        "ar": "ما قدرت أفحص التحديثات (ما في نت؟).",
+    },
+    "settings.updates": {"en": "Updates", "ar": "التحديثات"},
+    "settings.current_version": {
+        "en": "Current version: {version}",
+        "ar": "النسخة الحالية: {version}",
+    },
     "single.running_title": {
         "en": "ZFA Achievement is already running",
         "ar": "ZFA Achievement شغّال مسبقًا",

@@ -94,6 +94,23 @@ class SettingsPage(tk.Frame):
         )
         self.autostart_note.pack(fill="x", pady=(0, 8))
 
+        # Updates
+        from version import APP_VERSION
+
+        self._section(t("settings.updates"))
+        tk.Label(
+            self,
+            text=t("settings.current_version", version=APP_VERSION),
+            bg=BG,
+            fg=FG_DIM,
+            anchor="w",
+            font=("Segoe UI", 8),
+        ).pack(fill="x")
+        theme.HoverButton(
+            self, text=t("update.check"), command=self._check_updates,
+            kind="secondary", padx=12, pady=6,
+        ).pack(anchor="w", pady=(4, 10))
+
         self._section(t("settings.profile_url"), t("settings.profile_hint"))
         theme.entry(self, textvariable=self.profile_var, width=64).pack(
             fill="x", ipady=5, pady=(0, 12)
@@ -143,6 +160,10 @@ class SettingsPage(tk.Frame):
     def _cancel(self) -> None:
         if self.app is not None:
             self.app.show_page("games")
+
+    def _check_updates(self) -> None:
+        if self.app is not None:
+            self.app._check_updates(manual=True)
 
     def _toggle_autostart(self) -> None:
         import startup
