@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -83,14 +84,57 @@ def check() -> Update | None:
         if asset.get("name") == ASSET_NAME:
             url = asset.get("browser_download_url", "")
             break
-    if not url:
-        return None
+    # A missing ZIP is fine for the source (git) update path, which pulls code
+    # instead of downloading the build; url stays "" and the frozen path falls
+    # back to opening the release page.
 
     return Update(
         version=tag.lstrip("vV"),
         url=url,
         notes=(data.get("body") or "").strip(),
         page=data.get("html_url", f"https://github.com/{REPO}/releases/latest"),
+    )
+
+
+def _here() -> str:
+    return os.path.dirname(os.path.abspath(__file__))
+
+
+def is_git_source() -> bool:
+    """Running from a git working tree (the source install) with git available,
+    so we can self-update by pulling the latest code."""
+    if FROZEN:
+        return False
+    return shutil.which("git") is not None and os.path.isdir(
+        os.path.join(_here(), ".git")
+    )
+
+
+def apply_source_update() -> None:
+    """Fast-forward the source install to the latest pushed code.
+
+    A pristine clone has no local edits, so a hard reset to origin/master is the
+    reliable way to land exactly on the released commit. Raises on git failure.
+    """
+    here = _here()
+    subprocess.run(
+        ["git", "-C", here, "fetch", "--prune", "origin"],
+        check=True, capture_output=True, timeout=120,
+    )
+    subprocess.run(
+        ["git", "-C", here, "reset", "--hard", "origin/master"],
+        check=True, capture_output=True, timeout=60,
+    )
+
+
+def relaunch_source() -> None:
+    """Start a fresh copy of the (now-updated) source app, detached."""
+    main_py = os.path.join(_here(), "main.py")
+    subprocess.Popen(
+        [sys.executable, main_py],
+        cwd=_here(),
+        creationflags=DETACHED_PROCESS,
+        close_fds=True,
     )
 
 

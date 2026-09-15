@@ -268,16 +268,20 @@ class PickerWindow(tk.Tk):
             steamlib.save_config(cfg)
             close()
 
+        can_self = updater.FROZEN or updater.is_git_source()
+
         def do_update():
             close()
             if updater.FROZEN:
                 self._run_update(info)
+            elif updater.is_git_source():
+                self._run_source_update(info)
             else:
                 import webbrowser
 
                 webbrowser.open(info.page)
 
-        primary = n("update.now") if updater.FROZEN else n("update.open_page")
+        primary = n("update.now") if can_self else n("update.open_page")
         theme.HoverButton(
             row, text=primary, command=do_update, kind="primary", padx=18, pady=8
         ).pack(side="right")
@@ -294,10 +298,65 @@ class PickerWindow(tk.Tk):
         dlg.geometry(f"+{max(x, 0)}+{max(y, 0)}")
         dlg.grab_set()
 
+    def _run_source_update(self, info) -> None:
+        """Source install: pull the latest code with git, then relaunch."""
+        import updater
+
+        prog = tk.Toplevel(self)
+        prog.title(n("update.title"))
+        prog.configure(bg=BG)
+        prog.transient(self)
+        prog.resizable(False, False)
+        frame = tk.Frame(prog, bg=BG, padx=26, pady=22)
+        frame.pack(fill="both", expand=True)
+        status = tk.Label(
+            frame, text=n("update.downloading"), bg=BG, fg=FG,
+            font=("Segoe UI", 10), anchor="w",
+        )
+        status.pack(fill="x", pady=(0, 10))
+        bar = ttk.Progressbar(frame, mode="indeterminate", length=320)
+        bar.pack(fill="x")
+        bar.start(12)
+        prog.update_idletasks()
+        x = self.winfo_rootx() + (self.winfo_width() - prog.winfo_width()) // 2
+        y = self.winfo_rooty() + (self.winfo_height() - prog.winfo_height()) // 3
+        prog.geometry(f"+{max(x, 0)}+{max(y, 0)}")
+        prog.grab_set()
+
+        def worker():
+            try:
+                updater.apply_source_update()
+                ok, err = True, None
+            except Exception as exc:
+                ok, err = False, exc
+            self.after(0, lambda: done(ok, err))
+
+        def done(ok, err):
+            if not ok:
+                if prog.winfo_exists():
+                    prog.destroy()
+                messagebox.showerror(
+                    n("update.title"), n("update.failed", error=err), parent=self
+                )
+                return
+            if prog.winfo_exists():
+                status.configure(text=n("update.installing"))
+                prog.update_idletasks()
+            updater.relaunch_source()
+            self.after(400, self.quit_app)
+
+        threading.Thread(target=worker, daemon=True).start()
+
     def _run_update(self, info) -> None:
         """Download the release ZIP with a progress dialog, then hand off to the
         swap batch and quit so it can replace the running files."""
         import updater
+
+        if not info.url:  # release without a build attached -> just open the page
+            import webbrowser
+
+            webbrowser.open(info.page)
+            return
 
         prog = tk.Toplevel(self)
         prog.title(n("update.title"))
@@ -714,11 +773,13 @@ class PickerWindow(tk.Tk):
 
     def _build_global_footer(self, parent) -> None:
         """Copyright line pinned to the very bottom of the window (all pages)."""
+        from version import APP_VERSION
+
         brand = tk.Frame(parent, bg=BG_ALT)
         brand.pack(fill="x", side="bottom")
         tk.Label(
-            brand, text=n("app.copyright"), bg=BG_ALT, fg=FG_FAINT,
-            anchor="center", font=theme.font(8), pady=5,
+            brand, text=f"{n('app.copyright')}  ·  v{APP_VERSION}", bg=BG_ALT,
+            fg=FG_FAINT, anchor="center", font=theme.font(8), pady=5,
         ).pack(fill="x")
 
     def _build_games_footer(self, parent) -> None:
