@@ -342,6 +342,9 @@ class PickerWindow(tk.Tk):
             if prog.winfo_exists():
                 status.configure(text=n("update.installing"))
                 prog.update_idletasks()
+            # Free the single-instance port BEFORE relaunching, or the new copy
+            # would see it held and just resurface this (dying) window.
+            self._release_singleton()
             updater.relaunch_source()
             self.after(400, self.quit_app)
 
@@ -411,18 +414,21 @@ class PickerWindow(tk.Tk):
 
         threading.Thread(target=worker, daemon=True).start()
 
+    def _release_singleton(self) -> None:
+        lock, self._singleton_lock = getattr(self, "_singleton_lock", None), None
+        if lock is not None:
+            try:
+                lock.close()
+            except OSError:
+                pass
+
     def quit_app(self) -> None:
         idler = self.pages.get("idler")
         if idler is not None:
             idler.stop_all_jobs()
         if self._tray is not None:
             self._tray.stop()
-        lock = getattr(self, "_singleton_lock", None)
-        if lock is not None:
-            try:
-                lock.close()
-            except OSError:
-                pass
+        self._release_singleton()
         self.destroy()
 
     def _load_branding(self) -> None:
