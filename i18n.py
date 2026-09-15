@@ -70,6 +70,21 @@ STRINGS: dict[str, dict[str, str]] = {
         "en": "Still running here — right-click to quit.",
         "ar": "لسه شغّال هون — كليك يمين للإنهاء.",
     },
+    "single.running_title": {
+        "en": "ZFA Achievement is already running",
+        "ar": "ZFA Achievement شغّال مسبقًا",
+    },
+    "single.running_body": {
+        "en": (
+            "ZFA Achievement is already open (it may be minimized to the "
+            "system tray near the clock).\n\nThe existing window has been "
+            "brought to the front — no second copy was opened."
+        ),
+        "ar": (
+            "البرنامج فاتح أصلًا (يمكن يكون منزّل عند الساعة بالـ tray).\n\n"
+            "رجّعتلك النافذة الموجودة لقدّام — ما فتحت نسخة تانية."
+        ),
+    },
     "btn.save": {"en": "Save", "ar": "حفظ"},
     "btn.cancel": {"en": "Cancel", "ar": "إلغاء"},
     "btn.settings": {"en": "Settings", "ar": "الإعدادات"},

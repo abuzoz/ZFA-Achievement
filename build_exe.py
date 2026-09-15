@@ -41,6 +41,7 @@ HIDDEN = [
     "theme",
     "launcher",
     "tray",
+    "singleton",
     "PIL",
     "PIL.Image",
     "PIL.ImageTk",

@@ -76,6 +76,7 @@ class PickerWindow(tk.Tk):
         self._load_branding()
         self._tray = None
         self._tray_notified = False
+        self._singleton_lock = None
 
         self.games: list[steamlib.Game] = []
         self.config_data = steamlib.load_config()
@@ -123,12 +124,45 @@ class PickerWindow(tk.Tk):
         self.focus_force()
         self.state("normal")
 
+    # -- single-instance ------------------------------------------------
+
+    def attach_singleton(self, lock) -> None:
+        """Keep the single-instance lock alive and surface the window when a
+        second launch pings us. The ping arrives on a background socket thread,
+        which only sets a thread-safe flag; the GUI thread polls it (Tkinter
+        must not be touched from another thread)."""
+        import singleton
+        import threading
+
+        self._singleton_lock = lock
+        self._surface_flag = threading.Event()
+        singleton.serve(lock, self._surface_flag.set)
+        self._poll_surface()
+
+    def _poll_surface(self) -> None:
+        if not self.winfo_exists():
+            return
+        if self._surface_flag.is_set():
+            self._surface_flag.clear()
+            self._surface()
+        self.after(250, self._poll_surface)
+
+    def _surface(self) -> None:
+        # A later launch asked us to show ourselves (we may be in the tray).
+        self.restore_from_tray()
+
     def quit_app(self) -> None:
         idler = self.pages.get("idler")
         if idler is not None:
             idler.stop_all_jobs()
         if self._tray is not None:
             self._tray.stop()
+        lock = getattr(self, "_singleton_lock", None)
+        if lock is not None:
+            try:
+                lock.close()
+            except OSError:
+                pass
         self.destroy()
 
     def _load_branding(self) -> None:
@@ -708,8 +742,40 @@ class PickerWindow(tk.Tk):
             messagebox.showerror(n("app.title"), n("picker.launch_failed", error=exc))
 
 
+def _already_running_message() -> None:
+    """Native, no-Tk-root notice that another instance is already open."""
+    title = n("single.running_title")
+    body = n("single.running_body")
+    try:
+        import ctypes
+
+        MB_OK = 0x0
+        MB_ICONINFORMATION = 0x40
+        MB_SETFOREGROUND = 0x10000
+        MB_TOPMOST = 0x40000
+        ctypes.windll.user32.MessageBoxW(
+            0, body, title, MB_OK | MB_ICONINFORMATION | MB_SETFOREGROUND | MB_TOPMOST
+        )
+    except Exception:
+        print(body)
+
+
 def main() -> int:
-    PickerWindow().mainloop()
+    import singleton
+
+    # One GUI instance only. If the port is already held by *our* app, ask it
+    # to surface its window (it may be hidden in the tray) and exit quietly.
+    lock = singleton.acquire()
+    if lock is None:
+        if singleton.signal_existing():
+            _already_running_message()
+            return 0
+        # Port held by something unrelated -> start anyway, without the lock.
+
+    win = PickerWindow()
+    if lock is not None:
+        win.attach_singleton(lock)
+    win.mainloop()
     return 0
 
 
