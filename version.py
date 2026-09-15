@@ -5,4 +5,4 @@ Bump this with every GitHub release and keep it equal to the release tag
 tag to decide whether a newer build is available.
 """
 
-APP_VERSION = "1.3"
+APP_VERSION = "1.4"
